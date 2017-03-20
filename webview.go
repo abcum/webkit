@@ -34,30 +34,19 @@ import (
 )
 
 // WebView represents a WebKit WebView.
-//
-// See also: WebView at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html.
 type WebView struct {
 	*gtk.Widget
-	webView *C.WebKitWebView
+	webview *C.WebKitWebView
 }
 
-// NewWebView creates a new WebView with the default WebContext and the default
-// WebViewGroup.
-//
-// See also: webkit_web_view_new at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-new.
+// NewWebView creates a new WebView with the default Context.
 func NewWebView() *WebView {
 	return newWebView(C.webkit_web_view_new())
 }
 
-// NewWebViewWithContext creates a new WebView with the given WebContext and the
-// default WebViewGroup.
-//
-// See also: webkit_web_view_new_with_context at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-new-with-context.
-func NewWebViewWithContext(ctx *WebContext) *WebView {
-	return newWebView(C.webkit_web_view_new_with_context(ctx.webContext))
+// NewWebViewWithContext creates a new WebView with the given Contect.
+func NewWebViewWithContext(ctx *Context) *WebView {
+	return newWebView(C.webkit_web_view_new_with_context(ctx.context))
 }
 
 func newWebView(webViewWidget *C.GtkWidget) *WebView {
@@ -65,60 +54,49 @@ func newWebView(webViewWidget *C.GtkWidget) *WebView {
 	return &WebView{&gtk.Widget{glib.InitiallyUnowned{obj}}, C.to_WebKitWebView(webViewWidget)}
 }
 
-// Context returns the current WebContext of the WebView.
-//
-// See also: webkit_web_view_get_context at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-get-context.
-func (v *WebView) Context() *WebContext {
-	return &WebContext{C.webkit_web_view_get_context(v.webView)}
+// Context returns the current Context of the WebView.
+func (v *WebView) Context() *Context {
+	return &Context{C.webkit_web_view_get_context(v.webview)}
+}
+
+// Settings returns the current settings for this WebView.
+func (v *WebView) Settings() *Settings {
+	return &Settings{C.webkit_web_view_get_settings(v.webview)}
 }
 
 // LoadURI requests loading of the specified URI string.
-//
-// See also: webkit_web_view_load_uri at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-load-uri
-func (v *WebView) LoadURI(uri string) {
-	C.webkit_web_view_load_uri(v.webView, (*C.gchar)(C.CString(uri)))
+func (v *WebView) LoadUrl(uri string) {
+	C.webkit_web_view_load_uri(v.webview, (*C.gchar)(C.CString(uri)))
 }
 
-// LoadHTML loads the given content string with the specified baseURI. The MIME
-// type of the document will be "text/html".
-//
-// See also: webkit_web_view_load_html at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-load-html
-func (v *WebView) LoadHTML(content, baseURI string) {
-	C.webkit_web_view_load_html(v.webView, (*C.gchar)(C.CString(content)), (*C.gchar)(C.CString(baseURI)))
+// LoadTEXT loads the given content into the WebView, with a mime-type of "text/plain".
+func (v *WebView) LoadText(content, baseURI string) {
+	C.webkit_web_view_load_plain_text(v.webview, (*C.gchar)(C.CString(content)))
 }
 
-// Settings returns the current active settings of this WebView's WebViewGroup.
-//
-// See also: webkit_web_view_get_settings at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-get-settings.
-func (v *WebView) Settings() *Settings {
-	return newSettings(C.webkit_web_view_get_settings(v.webView))
+// LoadHTML loads the given content into the WebView, with a mime-type of "text/html", and
+// sets the base uri of the html content to the specified uri.
+func (v *WebView) LoadHtml(content, baseURI string) {
+	C.webkit_web_view_load_html(v.webview, (*C.gchar)(C.CString(content)), (*C.gchar)(C.CString(baseURI)))
 }
+
+// ----------------------------------------------------------------------------------------------------
 
 // Title returns the current active title of the WebView.
-//
-// See also: webkit_web_view_get_title at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-get-title.
 func (v *WebView) Title() string {
-	return C.GoString((*C.char)(C.webkit_web_view_get_title(v.webView)))
+	return C.GoString((*C.char)(C.webkit_web_view_get_title(v.webview)))
 }
 
 // URI returns the current active URI of the WebView.
-//
-// See also: webkit_web_view_get_uri at
-// http://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-get-uri.
 func (v *WebView) URI() string {
-	return C.GoString((*C.char)(C.webkit_web_view_get_uri(v.webView)))
+	return C.GoString((*C.char)(C.webkit_web_view_get_uri(v.webview)))
 }
 
 // Destroy destroys the WebView's corresponding GtkWidget and marks its internal
 // WebKitWebView as nil so that it can't be accidentally reused.
 func (v *WebView) Destroy() {
 	v.Widget.Destroy()
-	v.webView = nil
+	v.webview = nil
 }
 
 // LoadEvent denotes the different events that happen during a WebView load
@@ -158,7 +136,7 @@ func (v *WebView) GetSnapshot(resultCallback func(result *image.RGBA, err error)
 		callback := func(result *C.GAsyncResult) {
 			C.free(unsafe.Pointer(userData))
 			var snapErr *C.GError
-			snapResult := C.webkit_web_view_get_snapshot_finish(v.webView, result, &snapErr)
+			snapResult := C.webkit_web_view_get_snapshot_finish(v.webview, result, &snapErr)
 			if snapResult == nil {
 				defer C.g_error_free(snapErr)
 				msg := C.GoString((*C.char)(snapErr.message))
@@ -209,7 +187,7 @@ func (v *WebView) GetSnapshot(resultCallback func(result *image.RGBA, err error)
 		}
 	}
 
-	C.webkit_web_view_get_snapshot(v.webView,
+	C.webkit_web_view_get_snapshot(v.webview,
 		(C.WebKitSnapshotRegion)(1), // FullDocument is the only working region at this point
 		(C.WebKitSnapshotOptions)(0),
 		nil,
