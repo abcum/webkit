@@ -65,12 +65,12 @@ func (v *WebView) Settings() *Settings {
 }
 
 // LoadURI requests loading of the specified URI string.
-func (v *WebView) LoadUrl(uri string) {
+func (v *WebView) LoadUri(uri string) {
 	C.webkit_web_view_load_uri(v.webview, (*C.gchar)(C.CString(uri)))
 }
 
 // LoadTEXT loads the given content into the WebView, with a mime-type of "text/plain".
-func (v *WebView) LoadText(content, baseURI string) {
+func (v *WebView) LoadText(content string) {
 	C.webkit_web_view_load_plain_text(v.webview, (*C.gchar)(C.CString(content)))
 }
 
