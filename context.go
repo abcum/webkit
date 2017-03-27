@@ -32,21 +32,11 @@ func NewDefaultContext() *Context {
 	return &Context{C.webkit_web_context_get_default()}
 }
 
-// DefaultWebContext returns the default WebContext.
-func NewEphemeralContext() *Context {
-	return &Context{C.webkit_web_context_new_ephemeral()}
-}
-
 // ----------------------------------------------------------------------------------------------------
 
 // ClearCache clears all resources currently cached.
 func (c *Context) ClearCache() {
 	C.webkit_web_context_clear_cache(c.context)
-}
-
-// IsEphemeral returns whether the specified Context is ephemeral.
-func (c *Context) IsEphemeral() bool {
-	return gobool(C.webkit_web_context_is_ephemeral(c.context))
 }
 
 // ----------------------------------------------------------------------------------------------------
