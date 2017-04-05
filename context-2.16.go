@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build webkit_2_1_6
+// +build webkit_2_16
 
 package webkit
 
