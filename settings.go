@@ -17,7 +17,7 @@ package webkit
 // #include <webkit2/webkit2.h>
 import "C"
 
-// WebContext manages all aspects for a single WebView.
+// Settings manages the behaviour of a single WebView.
 type Settings struct {
 	settings *C.WebKitSettings
 }

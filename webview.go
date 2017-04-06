@@ -64,17 +64,17 @@ func (v *WebView) Settings() *Settings {
 	return &Settings{C.webkit_web_view_get_settings(v.webview)}
 }
 
-// LoadURI requests loading of the specified URI string.
+// LoadUri requests loading of the specified URI string.
 func (v *WebView) LoadUri(uri string) {
 	C.webkit_web_view_load_uri(v.webview, (*C.gchar)(C.CString(uri)))
 }
 
-// LoadTEXT loads the given content into the WebView, with a mime-type of "text/plain".
+// LoadText loads the given content into the WebView, with a mime-type of "text/plain".
 func (v *WebView) LoadText(content string) {
 	C.webkit_web_view_load_plain_text(v.webview, (*C.gchar)(C.CString(content)))
 }
 
-// LoadHTML loads the given content into the WebView, with a mime-type of "text/html", and
+// LoadHtml loads the given content into the WebView, with a mime-type of "text/html", and
 // sets the base uri of the html content to the specified uri.
 func (v *WebView) LoadHtml(content, baseURI string) {
 	C.webkit_web_view_load_html(v.webview, (*C.gchar)(C.CString(content)), (*C.gchar)(C.CString(baseURI)))
