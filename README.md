@@ -27,7 +27,7 @@ go install -tags 'webkit_2_16'
 #### Requirements
 
 - Golang >= 1.2
-- GTK+ >= 3.10
+- GTK+ >= 3.0
 - WebKit2GTK+ >= 2.0.0
 
 _Alpine Linux_
